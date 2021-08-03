@@ -1,31 +1,16 @@
-import time
+from Customer import CustomerProfile
 
+import time
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, ElementNotInteractableException, UnexpectedAlertPresentException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 import telegram_send
 
-path = "C:/Program Files (x86)/chromedriver.exe"
+
 PAGE_URL = "https://sede.administracionespublicas.gob.es"
-
-
-def return_operation(key):
-    """returns an operation string for selecting it in main cycle"""
-    return {
-        'refugee_documents': 'ASILO-OFICINA DE ASILO Y REFUGIO."nueva normalidad” Expedición/Renovación Documentos.C/ Pradillo 40',
-        'fingerprinting':    'POLICIA-TOMA DE HUELLAS (EXPEDICIÓN DE TARJETA) Y RENOVACIÓN DE TARJETA DE LARGA DURACIÓN'
-    }[key]
-
-
-class Customer:
-    doc_value = 'Y1234567M'
-    name = 'Forename Surname'
-    year = '01/01/2020'
-    province = 'Madrid',
-    operation = return_operation('refugee_documents')
 
 
 def return_web_element(key):
@@ -49,6 +34,14 @@ def return_web_element(key):
         'router_tab':  (By.ID, 'mmManager'),
         'manage_tab':  (By.ID, 'smSysMgr'),
         'reboot':      (By.ID, 'Submit1')
+    }[key]
+
+
+def return_operation(key):
+    """returns an operation string for selecting it in main cycle"""
+    return {
+        'refugee_documents': 'ASILO-OFICINA DE ASILO Y REFUGIO."nueva normalidad” Expedición/Renovación Documentos.C/ Pradillo 40',
+        'fingerprinting':    'POLICIA-TOMA DE HUELLAS (EXPEDICIÓN DE TARJETA) Y RENOVACIÓN DE TARJETA DE LARGA DURACIÓN'
     }[key]
 
 
@@ -102,11 +95,11 @@ def appointment_check():
     return True
 
 
-def fill_form(Customer):
-    if Customer.operation == return_operation('refugee_documents'):
-        action(return_web_element('form'), (Customer.doc_value, Keys.TAB, Customer.name, Keys.TAB, Customer.year))
-    elif Customer.operation == return_operation('fingerprinting'):
-        action(return_web_element('form'), (Customer.doc_value, Keys.TAB, Customer.name))
+def fill_form(customer):
+    if customer.operation == return_operation('refugee_documents'):
+        action(return_web_element('form'), (customer.doc_value, Keys.TAB, customer.name, Keys.TAB, customer.year))
+    elif customer.operation == return_operation('fingerprinting'):
+        action(return_web_element('form'), (customer.doc_value, Keys.TAB, customer.name))
         action(return_web_element('country'), 'UCRANIA')
     action(return_web_element('enviar'))
 
@@ -116,7 +109,7 @@ def reboot_router():
     pass
 
 
-def cycle(Customer, path):
+def cycle(customer, path):
     global driver
     driver = webdriver.Chrome(path)
 
@@ -126,16 +119,16 @@ def cycle(Customer, path):
             prepare_page()
 
             # choosing a province
-            action(return_web_element('provinces'), Customer.province)
+            action(return_web_element('provinces'), customer.province)
             action(return_web_element('aceptar'))
 
             # choosing an operation
-            action(return_web_element('operation'), Customer.operation)
+            action(return_web_element('operation'), customer.operation)
             action(return_web_element('aceptar'))
             action(return_web_element('entrar'))
 
             # filling a form
-            fill_form(Customer)
+            fill_form(customer)
 
             # checking captcha validation
             if captcha_validation_check():
@@ -158,4 +151,13 @@ def cycle(Customer, path):
             continue
 
 
-cycle(Customer, path)
+customer = CustomerProfile(  # fill the customer information
+    doc_value='Y1234567',
+    name='Forname Surname',
+    year='01/01/2020',
+    province='Madrid',
+    operation=return_operation('refugee_documents')
+    )
+path = "C:/Program Files (x86)/chromedriver.exe"
+
+cycle(customer, path)
