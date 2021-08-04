@@ -1,4 +1,4 @@
-from Customer import CustomerProfile
+"""Module with functions for performing actions on a web page and their supporting functions"""
 
 import time
 from selenium import webdriver
@@ -149,15 +149,3 @@ def cycle(customer, path):
             atmp_numb += 1
             print(f'ATTEMPT: {str(atmp_numb)}. NO LUCK... TRYING AGAIN')
             continue
-
-
-customer = CustomerProfile(  # fill the customer information
-    doc_value='Y1234567',
-    name='Forname Surname',
-    year='01/01/2020',
-    province='Madrid',
-    operation=return_operation('refugee_documents')
-    )
-path = "C:/Program Files (x86)/chromedriver.exe"
-
-cycle(customer, path)
