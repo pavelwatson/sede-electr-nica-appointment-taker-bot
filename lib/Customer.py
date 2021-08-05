@@ -1,4 +1,4 @@
-"""module that describes a customer profile for using it on a web"""
+"""module that describes a customer profile for using it in main.py"""
 
 
 class CustomerProfile:
