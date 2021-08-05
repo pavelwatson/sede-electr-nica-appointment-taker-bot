@@ -32,7 +32,7 @@ def perform_elem(elem, keys):
             continue
 
 
-def action(elem, keys=Keys.ENTER, next_elem=''):
+def action(elem, keys=Keys.ENTER):
     """
     waits for elem element to appear on a page
     performs keys on element
@@ -45,32 +45,28 @@ def action(elem, keys=Keys.ENTER, next_elem=''):
 def prepare_page():
     """opens PAGE_URL and then setups the page for cycling """
     driver.get(PAGE_URL)
-    action(return_web_element('tasks'), Keys.ENTER)
-    action(return_web_element('appoinments'), Keys.ENTER)
-    action(return_web_element('submit'), Keys.ENTER)
+    action(web_elements['tasks'], Keys.ENTER)
+    action(web_elements['appoinments'], Keys.ENTER)
+    action(web_elements['submit'], Keys.ENTER)
 
 
 def captcha_validation_check():
+    """if Captcha Error has appeared return True, else None"""
     try:
-        wait_elem(return_web_element('captcha'), 2)
+        wait_elem(web_elements['captcha'], 2)
     except TimeoutException:
         return
-    return True
 
-
-def appointment_check():
-    """CHECKING AN APPOINTMENT"""
-    wait_elem(return_web_element('appointment'), 2)
     return True
 
 
 def fill_form(customer):
-    if customer.operation == return_operation('refugee_documents'):
-        action(return_web_element('form'), (customer.doc_value, Keys.TAB, customer.name, Keys.TAB, customer.year))
-    elif customer.operation == return_operation('fingerprinting'):
-        action(return_web_element('form'), (customer.doc_value, Keys.TAB, customer.name))
-        action(return_web_element('country'), 'UCRANIA')
-    action(return_web_element('enviar'))
+    if operations[customer.operation] == operations['refugee_documents']:
+        action(web_elements['form'], (customer.doc_value, Keys.TAB, customer.name, Keys.TAB, customer.year))
+    elif operations[customer.operation] == operations['fingerprinting']:
+        action(web_elements['form'], (customer.doc_value, Keys.TAB, customer.name))
+        action(web_elements['country'], 'UCRANIA')
+    action(web_elements['enviar'])
 
 
 def reboot_router():
@@ -78,43 +74,43 @@ def reboot_router():
     pass
 
 
-def cycle(customer, path):
+def main(customer, path):
     global driver
     driver = webdriver.Chrome(path)
-
     atmp_numb = 0
     while True:
-        try:
-            prepare_page()
+        prepare_page()
 
-            # choosing a province
-            action(return_web_element('provinces'), customer.province)
-            action(return_web_element('aceptar'))
+        # choosing a province
+        action(web_elements['provinces'], customer.province)
+        action(web_elements['aceptar'])
 
-            # choosing an operation
-            action(return_web_element('operation'), customer.operation)
-            action(return_web_element('aceptar'))
-            action(return_web_element('entrar'))
+        # choosing an operation
+        action(web_elements['operation'], operations[customer.operation])
+        action(web_elements['aceptar'])
+        action(web_elements['entrar'])
 
-            # filling a form
-            fill_form(customer)
+        # filling a form
+        fill_form(customer)
 
-            # checking captcha validation
-            if captcha_validation_check():
-                reboot_router()
-                print('CAPTCHA VALIDATION ERROR, REBOOTING THE ROUTER')
-                time.sleep(240)
-                continue
-            time.sleep(100)
-            # trying to take an appointment
-            action(return_web_element('enviar'))
+        # checking captcha validation
+        if captcha_validation_check():
+            reboot_router()
+            print('CAPTCHA VALIDATION ERROR, REBOOTING THE ROUTER')
+            time.sleep(240)
+            continue
 
-            # checking if appointment is available
-            if appointment_check():
-                while True:  # if so, spams the user about it.
-                    telegram_send.send(messages=["Appointment found"])
+        # trying to take an appointment
+        action(web_elements['enviar'])
 
-        except TimeoutException:
+        # if message "No Citas at the moment" appears, then continue
+        no_citas = driver.find_elements(*web_elements['no_citas'])
+        if no_citas:
             atmp_numb += 1
             print(f'ATTEMPT: {str(atmp_numb)}. NO LUCK... TRYING AGAIN')
             continue
+
+        # if there is a cita notify a user
+        while True:
+            os.system('wsay "RETARD ALERT"')
+            telegram_send.send(messages=["Appointment found"])
