@@ -79,20 +79,25 @@ def main(customer, path):
     driver = webdriver.Chrome(path)
     atmp_numb = 0
     while True:
-        prepare_page()
+        try:
+            prepare_page()
 
-        # choosing a province
-        action(web_elements['provinces'], customer.province)
-        action(web_elements['aceptar'])
+            # choosing a province
+            action(web_elements['provinces'], customer.province)
+            action(web_elements['aceptar'])
 
-        # choosing an operation
-        action(web_elements['operation'], operations[customer.operation])
-        action(web_elements['aceptar'])
-        action(web_elements['entrar'])
+            # choosing an operation
+            action(web_elements['operation'], operations[customer.operation])
+            action(web_elements['aceptar'])
+            action(web_elements['entrar']) 
 
-        # filling a form
-        fill_form(customer)
+            # filling a form
+            fill_form(customer)
 
+        except TimeoutException: # if page can't load, or loads slowly loop restarts
+            print('failed, cannot load the page')
+            continue
+    
         # checking captcha validation
         if captcha_validation_check():
             reboot_router()
@@ -102,7 +107,7 @@ def main(customer, path):
 
         # trying to take an appointment
         action(web_elements['enviar'])
-
+   
         # if message "No Citas at the moment" appears, then continue
         no_citas = driver.find_elements(*web_elements['no_citas'])
         if no_citas:
