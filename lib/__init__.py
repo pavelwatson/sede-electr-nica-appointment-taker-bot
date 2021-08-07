@@ -1,3 +1,3 @@
 from .Customer import CustomerProfile
-from .main import cycle
-from .main import return_operation as operation
+from .main import main
+from .data import operations, web_elements

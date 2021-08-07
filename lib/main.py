@@ -9,7 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 import telegram_send
 
-from main.data import web_elements, operations
+from lib.data import web_elements, operations
 
 PAGE_URL = "https://sede.administracionespublicas.gob.es"
 
@@ -112,5 +112,4 @@ def main(customer, path):
 
         # if there is a cita notify a user
         while True:
-            os.system('wsay "RETARD ALERT"')
             telegram_send.send(messages=["Appointment found"])
