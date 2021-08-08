@@ -97,7 +97,7 @@ def main(customer, path):
         except TimeoutException: # if page can't load, or loads slowly loop restarts
             print('failed, cannot load the page')
             continue
-    
+
         # checking captcha validation
         if captcha_validation_check():
             reboot_router()
@@ -107,10 +107,11 @@ def main(customer, path):
 
         # trying to take an appointment
         action(web_elements['enviar'])
-   
+
         # if message "No Citas at the moment" appears, then continue
         no_citas = driver.find_elements(*web_elements['no_citas'])
-        if no_citas:
+        session_expired = driver.find_elements(*web_elements['session_expired'])
+        if no_citas or session_expired:
             atmp_numb += 1
             print(f'ATTEMPT: {str(atmp_numb)}. NO LUCK... TRYING AGAIN')
             continue

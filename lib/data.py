@@ -21,7 +21,8 @@ web_elements = {
     'manage_tab':  (By.ID, 'smSysMgr'),
     'reboot':      (By.ID, 'Submit1'),
     'no_citas':    (By.XPATH, '//*[@id="mainWindow"]/div/div/section/div[2]/form/div[1]/p'),
-    'alreadyhave': (By.XPATH, '//*[@id="warning"]/ul/li/p[2]/span/span/font[1]/font')
+    'alreadyhave': (By.XPATH, '//*[@id="warning"]/ul/li/p[2]/span/span/font[1]/font'),
+    'session_expired': (By.XPATH, '//*[@id="mensajeInfo"]/p[1]/span')
     }
 
 
